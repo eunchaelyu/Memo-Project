@@ -13,8 +13,8 @@ public class MemoService {
 
     private final MemoRepository memoRepository;
 
-    public MemoService(JdbcTemplate jdbcTemplate) {
-        this.memoRepository = new MemoRepository(jdbcTemplate); //중복되는 코드 제거
+    public MemoService(MemoRepository memoRepository) {
+        this.memoRepository= memoRepository;
     }
     public MemoResponseDto createMemo(MemoRequestDto requestDto) {
         // RequestDto -> Entity

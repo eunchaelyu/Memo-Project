@@ -18,7 +18,7 @@ public class MemoRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public MemoRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+        this.jdbcTemplate= jdbcTemplate;
     }
 
     public Memo save(Memo memo) {
