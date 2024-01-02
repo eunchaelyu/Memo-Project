@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 public class MemoController {
-//MemoController>MemoService> MemoRepository
+
     private final MemoService memoService;
 
     public MemoController(MemoService memoService) {
@@ -18,15 +18,18 @@ public class MemoController {
     }
 
     @PostMapping("/memos")
-    public MemoResponseDto createMemo(@RequestBody MemoRequestDto requestDto) { //받아온 데이터가 있다면 그대로 전달한다
+    public MemoResponseDto createMemo(@RequestBody MemoRequestDto requestDto) {
         return memoService.createMemo(requestDto);
-        //컨트롤러의 메서드이름과 서비스의 메서드이름을 일치시키는게 좋다
-        //사용자로부터 받은 request 데이터도 넘겨줌(requestDto)
     }
 
     @GetMapping("/memos")
     public List<MemoResponseDto> getMemos() {
         return memoService.getMemos();
+    }
+
+    @GetMapping("/memos/contents")
+    public List<MemoResponseDto> getMemosByKeyword(String keyword) {
+        return memoService.getMemosByKeyword(keyword);
     }
 
     @PutMapping("/memos/{id}")

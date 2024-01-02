@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Memo Service</title>
+    <title>Board Service</title>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@500&display=swap" rel="stylesheet">
@@ -238,6 +238,8 @@
             showEdits(id);
             let contents = $(`#${id}-contents`).text().trim();
             $(`#${id}-textarea`).val(contents);
+            let password = $(`#${id}-password`).val().trim();
+
         }
 
         function showEdits(id) {
@@ -261,22 +263,24 @@
             // 2. 메모 목록을 불러와서 HTML로 붙입니다.
             $.ajax({
                 type: 'GET',
-                url: '/api/memos',
+                url: '/api/boards',
                 success: function (response) {
                     for (let i = 0; i < response.length; i++) {
                         let message = response[i];
                         let id = message['id'];
                         let username = message['username'];
+                        let title = message['title']
                         let contents = message['contents'];
+                        let password =  message['password']
                         let modifiedAt = message['modifiedAt'];
-                        addHTML(id, username, contents, modifiedAt);
+                        addHTML(id, username, title, contents, password, modifiedAt);
                     }
                 }
             })
         }
 
         // 메모 하나를 HTML로 만들어서 body 태그 내 원하는 곳에 붙입니다.
-        function addHTML(id, username, contents, modifiedAt) {
+        function addHTML(id, username, title, contents, password, modifiedAt) {
             // 1. HTML 태그를 만듭니다.
             let tempHtml = `<div class="card">
                 <!-- date/username 영역 -->
@@ -290,11 +294,16 @@
                 </div>
                 <!-- contents 조회/수정 영역-->
                 <div class="contents">
+                    <div style="font-size: 25px" id="${id}-title" class="title">
+                        ${title}
+                    </div>
                     <div id="${id}-contents" class="text">
                         ${contents}
                     </div>
                     <div id="${id}-editarea" class="edit">
                         <textarea id="${id}-textarea" class="te-edit" name="" id="" cols="30" rows="5"></textarea>
+<!--                    <input id="${password}" class="password">-->
+                        <input class="${id}-password">
                     </div>
                 </div>
                 <!-- 버튼 영역-->
@@ -311,9 +320,14 @@
         // 메모를 생성합니다.
         function writePost() {
             // 1. 작성한 메모를 불러옵니다.
+            let title = $('#title').val();
             let contents = $('#contents').val();
+            let password = $('#password').val();
 
             // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
+            // if (isValidContents(contents) == false) {
+            //     return;
+            // }
             if (isValidContents(contents) == false) {
                 return;
             }
@@ -321,12 +335,12 @@
             let username = genRandomName(10);
 
             // 4. 전달할 data JSON으로 만듭니다.
-            let data = {'username': username, 'contents': contents};
+            let data = {'username': username, 'title':title, 'contents': contents, 'password':password};
 
             // 5. POST /api/memos 에 data를 전달합니다.
             $.ajax({
                 type: "POST",
-                url: "/api/memos",
+                url: "/api/boards",
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (response) {
@@ -340,20 +354,23 @@
         function submitEdit(id) {
             // 1. 작성 대상 메모의 username과 contents 를 확인합니다.
             let username = $(`#${id}-username`).text().trim();
+            let title = $(`#${id}-title`).text().trim();
             let contents = $(`#${id}-textarea`).val().trim();
+            let password = $(`#${id}-password`).val().trim();
 
             // 2. 작성한 메모가 올바른지 isValidContents 함수를 통해 확인합니다.
             if (isValidContents(contents) == false) {
                 return;
             }
+            if  ()
 
-            // 3. 전달할 data JSON으로 만듭니다.
-            let data = {'username': username, 'contents': contents};
+                // 3. 전달할 data JSON으로 만듭니다.
+                let data = {'username': username, 'title':title, 'contents': contents, 'password':password};
 
             // 4. PUT /api/memos/{id} 에 data를 전달합니다.
             $.ajax({
                 type: "PUT",
-                url: `/api/memos/${id}`,
+                url: `/api/boards/${id}`,
                 contentType: "application/json",
                 data: JSON.stringify(data),
                 success: function (response) {
@@ -368,7 +385,7 @@
             // 1. DELETE /api/memos/{id} 에 요청해서 메모를 삭제합니다.
             $.ajax({
                 type: "DELETE",
-                url: `/api/memos/${id}`,
+                url: `/api/boards/${id}`,
                 success: function (response) {
                     alert('메시지 삭제에 성공하였습니다.');
                     window.location.reload();
@@ -387,14 +404,18 @@
 </div>
 <div class="wrap">
     <div class="header">
-        <h2>Memo</h2>
+        <h2>Board</h2>
         <p>
             공유하고 싶은 소식을 입력해주세요.
         </p>
     </div>
     <div class="area-write">
-        <textarea class="field" placeholder="공유하고 싶은 소식을 입력해주세요" name="contents" id="contents" cols="30"
-                  rows="10"></textarea>
+        <!--        <textarea class="field" placeholder="공유하고 싶은 소식을 입력해주세요" name="contents" id="contents" cols="30"-->
+        <!--                  rows="10"></textarea>-->
+        <input type="text" class="field" placeholder="제목" name="title" id="title">
+        <textarea class="field" placeholder="공유하고 싶은 소식을 입력해주세요" name="contents" id="contents" cols="30" rows="10"></textarea>
+        <input type="password" class="field" placeholder="비밀번호" name="password" id="password">
+        <!-- 이미지 클릭 시 writePost 함수 호출 -->
         <!--            <button class="btn btn-danger" onclick="writePost()">작성하기</button>-->
         <img src="images/send.png" alt="" onclick="writePost()">
     </div>
